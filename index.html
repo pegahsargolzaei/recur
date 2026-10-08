@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Recur">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="app-icon-180.png">
+<link rel="icon" type="image/png" href="app-icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffffff; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<title>Recur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Luckiest+Guy&display=swap">
+<style>
+/* Single-column phone app, tokens taken from the Recur Figma file (light look by design choice). */
+:root {
+  --navy: #03045e;      /* headings, word */
+  --blue: #0077b6;      /* actions, eyebrows */
+  --ink: #001219;       /* body text */
+  --muted: #53636d;     /* secondary text */
+  --line: #dde5ea;      /* borders, dividers */
+  --tint: #eef8fc;      /* system panels */
+  --mist: #f4f8fa;      /* feedback / next practice */
+  --paper: #fffffc;     /* editable inputs */
+  --white: #ffffff;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --brand: "Luckiest Guy", "Arial Black", Impact, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--white); }
+body { font-family: var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:disabled { cursor: default; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+p { margin: 0; }
+
+.app { max-width: 430px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
+.header { height: 68px; padding: 0 24px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.brand { width: 32px; height: 32px; border-radius: 8px; background: var(--navy); color: var(--paper); display: grid; place-items: center; font-family: var(--brand); font-size: 23px; line-height: 1; padding-top: 4px; }
+.back { width: 32px; height: 32px; margin-left: -6px; display: grid; place-items: center; border-radius: 8px; }
+.back img { width: 21px; height: 21px; display: block; }
+.htext { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-weight: 600; }
+.eyebrow { font-size: 10px; color: var(--blue); letter-spacing: .02em; }
+.htitle { font-size: 18px; color: var(--navy); }
+
+.content { padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 24px; flex: 1; }
+.intro { display: flex; flex-direction: column; gap: 12px; }
+.display { font-size: 30px; line-height: 1.15; color: var(--navy); font-weight: 400; text-wrap: balance; }
+.lede { font-size: 15px; line-height: 1.5; color: var(--muted); }
+.h2 { font-size: 20px; font-weight: 600; color: var(--navy); }
+.sub { font-size: 14px; line-height: 1.5; color: var(--muted); }
+.small { font-size: 12px; line-height: 1.5; color: var(--muted); }
+.center { text-align: center; }
+
+.btn { height: 50px; width: 100%; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
+.btn-primary { background: var(--blue); border: 1px solid var(--blue); color: var(--white); }
+.btn-secondary { background: var(--white); border: 2px solid var(--blue); color: var(--blue); }
+.btn:disabled { opacity: .45; }
+.btn-review { height: 38px; width: 100%; border-radius: 8px; border: 2px solid var(--blue); color: var(--blue); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.btn-review.quiet { border-width: 1px; border-color: var(--line); }
+.btn-review:disabled { opacity: .5; }
+.link { color: var(--blue); font-weight: 500; font-size: 12px; }
+.link-home { color: var(--blue); font-weight: 500; font-size: 14px; text-align: center; width: 100%; padding: 6px 0; }
+
+.panel { background: var(--tint); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 1px 3px 3px rgba(0,0,0,.2); }
+.panel-title { font-size: 19px; font-weight: 600; color: var(--navy); }
+.label-row { display: flex; align-items: center; gap: 8px; }
+.label-row img { display: block; }
+.caps { font-size: 12px; font-weight: 600; color: var(--blue); letter-spacing: .02em; }
+
+.bank { display: flex; flex-direction: column; gap: 8px; }
+.bank-head { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 8px; }
+.bank-head b { font-size: 16px; font-weight: 600; color: var(--navy); }
+.bank-head span { font-size: 11px; color: var(--muted); letter-spacing: .02em; }
+.row { display: flex; flex-direction: column; gap: 6px; padding: 7px 0 0; text-align: left; width: 100%; }
+.row-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; }
+.row-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.row-word { font-size: 19px; color: var(--ink); }
+.row-gloss { font-size: 12px; color: var(--muted); }
+.row-due { font-size: 11px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.row-due.today { color: var(--blue); }
+.divider { height: 1px; background: var(--line); width: 100%; }
+
+.empty { padding-top: 78px; display: flex; flex-direction: column; gap: 26px; }
+.symbol { width: 64px; height: 64px; border-radius: 16px; background: var(--tint); display: grid; place-items: center; }
+.symbol.round { border-radius: 100px; }
+.symbol.sm { width: 52px; height: 52px; }
+
+.card { border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 20px; background: var(--white); }
+.field { display: flex; flex-direction: column; gap: 9px; }
+.flabel { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.flabel b { font-weight: 600; color: var(--navy); white-space: pre; }
+.flabel b i { font-style: normal; color: var(--blue); }
+.word-input { border: 2px solid var(--line); border-radius: 10px; padding: 10px 14px; font: 500 32px/1.2 var(--font); color: var(--navy); width: 100%; background: var(--white); }
+.word-input::placeholder { color: #a9b6be; }
+.box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 15px; line-height: 1.5; color: var(--ink); }
+textarea.box { width: 100%; resize: none; font-family: var(--font); font-size: 16px; display: block; field-sizing: content; min-height: 76px; }
+textarea.box::placeholder { color: var(--muted); }
+.opts { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.opts > span { font-size: 11px; color: var(--muted); }
+.rec { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--blue); }
+.hint { font-size: 12px; line-height: 1.45; color: var(--blue); background: var(--tint); border-radius: 8px; padding: 8px 10px; }
+
+.meaning { background: var(--tint); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.meaning-head { display: flex; justify-content: space-between; align-items: flex-start; font-weight: 600; color: var(--blue); }
+.meaning-head span { font-size: 10px; letter-spacing: .02em; }
+.meaning-head button { font-size: 12px; font-weight: 600; color: var(--blue); }
+.meaning-text { font-size: 14px; line-height: 1.45; color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: var(--white); border-radius: 6px; padding: 5px 10px; font-size: 12px; color: var(--navy); }
+.sys-note { font-size: 11px; color: var(--blue); }
+
+.recall { background: var(--tint); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.recall-q { font-size: 17px; font-weight: 600; line-height: 1.35; color: var(--navy); }
+.dim { opacity: .55; }
+
+.feedback { background: var(--mist); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.feedback.fix { background: var(--tint); }
+.feedback .fb-label { font-size: 10px; font-weight: 600; color: var(--blue); letter-spacing: .02em; }
+.feedback.fix .fb-label { color: var(--navy); }
+.fb-title { font-size: 14px; font-weight: 600; color: var(--navy); }
+.fb-text { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.fb-corrected { display: flex; flex-direction: column; gap: 5px; }
+.fb-corrected span { font-size: 10px; font-weight: 600; color: var(--navy); letter-spacing: .02em; }
+.fb-corrected p { font-size: 14px; line-height: 1.45; color: var(--ink); }
+
+.decide { display: flex; flex-direction: column; gap: 8px; }
+.decide p { font-size: 12px; line-height: 1.4; color: var(--muted); text-align: center; }
+.decide p.tight { font-size: 11px; }
+
+.progress { display: flex; flex-direction: column; gap: 10px; }
+.progress-labels { display: flex; justify-content: space-between; font-size: 12px; }
+.progress-labels b { font-weight: 600; color: var(--blue); }
+.progress-labels span { color: var(--muted); }
+.track { display: flex; gap: 4px; }
+.seg { flex: 1; height: 3px; border-radius: 2px; background: var(--line); }
+.seg.on { background: var(--blue); }
+
+.summary { border: 2px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.summary .w { font-size: 30px; font-weight: 500; color: var(--navy); }
+.next-box { background: var(--mist); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.next-box .caps { font-size: 11px; }
+.next-date { font-size: 20px; font-weight: 600; color: var(--navy); }
+.error { font-size: 12px; line-height: 1.45; color: #9b2c1f; }
+.busy { font-size: 13px; color: var(--blue); }
+.history { display: flex; flex-direction: column; gap: 10px; }
+.hist-item { display: flex; flex-direction: column; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.hist-item p { font-size: 14px; line-height: 1.45; }
+.hist-item span { font-size: 11px; color: var(--muted); }
+.confirm { display: flex; gap: 8px; }
+.danger { color: #9b2c1f; border-color: #9b2c1f; }
+.header-link { margin-left: auto; color: var(--blue); font-size: 12px; font-weight: 500; padding: 8px 0 8px 8px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 16px; }
+.stat { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; min-width: 0; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat b { font-size: 21px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 11px; color: var(--muted); }
+.size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.size-opt { height: 44px; border-radius: 10px; border: 2px solid var(--line); color: var(--navy); font-size: 15px; font-weight: 600; background: var(--white); }
+.size-opt.on { border-color: var(--blue); background: var(--blue); color: var(--white); }
+.choice { display: flex; flex-direction: column; gap: 3px; text-align: left; width: 100%; border: 2px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--white); }
+.choice b { font-size: 15px; font-weight: 600; color: var(--navy); }
+.choice span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.choice.on { border-color: var(--blue); background: var(--tint); }
+input.box { width: 100%; font-family: var(--font); font-size: 16px; min-height: 50px; }
+.word-input.hidden-word { color: var(--muted); letter-spacing: .2em; }
+.box-wrap { position: relative; }
+textarea.box.with-action { padding-right: 48px; }
+.box-action { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; border-radius: 8px; display: grid; place-items: center; }
+.box-action:active { background: var(--tint); }
+.greet { font-size: 15px; color: var(--blue); font-weight: 600; }
+.ob-brand { width: 56px; height: 56px; border-radius: 14px; font-size: 38px; padding-top: 6px; }
+.ob-steps { display: flex; flex-direction: column; gap: 14px; }
+.ob-step { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+.ob-step i { font-style: normal; width: 28px; height: 28px; border-radius: 100px; background: var(--tint); color: var(--blue); font-weight: 600; font-size: 13px; display: grid; place-items: center; }
+.ob-step b { display: block; font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.ob-step span { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.ok-note { font-size: 12px; line-height: 1.45; color: #1b7a43; }
+a.link { text-decoration: none; }
+.syn-input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: 16px var(--font); background: var(--paper); }
+@media (prefers-reduced-motion: no-preference) { .content { animation: in .18s ease-out; } @keyframes in { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: none; } } }
+</style>
+
+<div class="app" id="app">
+  <header class="header">
+    <div class="brand" aria-hidden="true">R</div>
+    <div class="htext"><span class="eyebrow">PERSONAL ENGLISH EXAM VOCABULARY</span><span class="htitle">Recur</span></div>
+  </header>
+  <main class="content">
+    <div class="intro"><p class="display">Your words, in your own words.</p><p class="lede">Loading your word bank…</p></div>
+  </main>
+</div>
+
+<script src="scheduler.js"></script>
+<script>
+(() => {
+  const R = window.RecurScheduler;
+  // ---------- dates ----------
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const pad = n => String(n).padStart(2, "0");
+  const toKey = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const fromKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+  const today = () => toKey(new Date());
+  const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return toKey(d); };
+  const dayDiff = k => Math.round((fromKey(k) - fromKey(today())) / 86400000);
+  const shortDate = k => { const d = fromKey(k); return d.getDate() + " " + MONTHS[d.getMonth()].slice(0, 3); };
+  const longDate = k => {
+    const d = fromKey(k), diff = dayDiff(k), base = d.getDate() + " " + MONTHS[d.getMonth()];
+    if (diff <= 0) return "Today · " + base;
+    if (diff === 1) return "Tomorrow · " + base;
+    return base;
+  };
+
+  // ---------- helpers ----------
+  const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const icon = (name, size) => `<img src="icons/${name}.svg" width="${size}" height="${size}" alt="">`;
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const lsGet = () => { try { return JSON.parse(localStorage.getItem("recur.words") || "{}"); } catch { return {}; } };
+  const lsSet = (w) => { try { localStorage.setItem("recur.words", JSON.stringify(w)); } catch {} };
+  const lsGetSettings = () => { try { return JSON.parse(localStorage.getItem("recur.settings") || "{}"); } catch { return {}; } };
+  const lsSetSettings = (s) => { try { localStorage.setItem("recur.settings", JSON.stringify(s)); } catch {} };
+  const SETTINGS_ID = "_settings";
+  // Running inside claude.ai (Claude features come from the viewer's account) or as a standalone website,
+  // where each person can add their own Anthropic API key, kept only in this browser.
+  const HOSTED = !!(window.claude && window.claude.use);
+  const KEY_STORE = "recur.apiKey";
+  const lsGetKey = () => { try { return localStorage.getItem(KEY_STORE) || ""; } catch { return ""; } };
+  const lsSetKey = (k) => { try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch {} };
+  const SDK_URL = "https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.132.0/+esm";
+  const MODEL = "claude-opus-5-5";
+  let sdkPromise = null;
+  const loadSdk = () => (sdkPromise ||= import(SDK_URL).then(m => m.default || m.Anthropic));
+
+  // Same shape as the claude.ai `sample` capability: json(prompt, opts) -> parsed object.
+  function apiKeyAI(apiKey) {
+    let client = null;
+    const getClient = async () => {
+      if (client) return client;
+      const Anthropic = await loadSdk();
+      client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+      return client;
+    };
+    return {
+      async json(prompt, opts = {}) {
+        const c = await getClient();
+        let res;
+        try {
+          res = await c.beta.messages.create({
+            model: MODEL,
+            max_tokens: 4000,
+            betas: ["server-side-fallback-2026-07-01"],
+            fallbacks: "default",
+            output_config: { effort: "low", ...(opts.schema ? { format: { type: "json_schema", schema: opts.schema } } : {}) },
+            messages: [{ role: "user", content: prompt }],
+          });
+        } catch (e) { throw apiError(e); }
+        if (res.stop_reason === "refusal") throw { code: "refusal" };
+        const text = res.content.filter(b => b.type === "text").map(b => b.text).join("");
+        try { return JSON.parse(text); } catch { throw { code: "bad_output" }; }
+      },
+    };
+  }
+  async function checkKey(apiKey) {
+    const Anthropic = await loadSdk();
+    const c = new Anthropic({ apiKey, dangerouslyAllowBrowser: true, maxRetries: 0 });
+    try { await c.models.retrieve(MODEL); } catch (e) { throw apiError(e); }
+  }
+  function apiError(e) {
+    const A = e && e.constructor && e.constructor.name;
+    if (A === "AuthenticationError" || e?.status === 401) return { code: "bad_key" };
+    if (A === "PermissionDeniedError" || e?.status === 403) return { code: "bad_key" };
+    if (A === "RateLimitError" || e?.status === 429) return { code: "rate_limited" };
+    if (e?.status === 400) return { code: "bad_request", message: e.message };
+    return { code: "unavailable", message: e?.message };
+  }
+
+  // ---------- state ----------
+  const S = {
+    view: "home",
+    loaded: false,
+    words: lsGet(),
+    add: null,
+    prac: null,
+    savedId: null,
+    detailId: null,
+    lastSample: "",
+    settings: { ...R.DEFAULT_SETTINGS, ...lsGetSettings() },
+    sessionSize: 10,
+  };
+  let db = null, wordsCol = null, ai = null;
+
+  const all = () => Object.values(S.words).sort((a, b) => a.due < b.due ? -1 : a.due > b.due ? 1 : a.created - b.created);
+  const queueFor = size => R.buildQueue(Object.values(S.words), S.settings, size, today());
+  const extraFor = size => R.buildExtraQueue(Object.values(S.words), S.settings, size, today());
+
+  // ---------- storage ----------
+  async function persist(w) {
+    S.words[w.id] = w; lsSet(S.words);
+    if (wordsCol) { try { await wordsCol.doc(w.id).set(w); } catch (e) { console.warn("save failed", e); } }
+  }
+  async function saveSettings(s) {
+    S.settings = s; lsSetSettings(s);
+    if (wordsCol) { try { await wordsCol.doc(SETTINGS_ID).set(s); } catch (e) { console.warn("settings save failed", e); } }
+  }
+  // Words saved before review steps existed start at the 1-day step, due today (once per word).
+  function migrateAll() {
+    for (const w of Object.values(S.words)) { const m = R.migrate(w, today()); if (m) persist(m); }
+  }
+  async function remove(id) {
+    delete S.words[id]; lsSet(S.words);
+    if (wordsCol) { try { await wordsCol.doc(id).delete(); } catch (e) { console.warn("delete failed", e); } }
+  }
+
+  // ---------- AI ----------
+  async function askJSON(prompt, schema) {
+    if (!ai) throw { code: "no_ai" };
+    return ai.json(prompt, { modelTier: "default", schema });
+  }
+  const str = { type: "string" }, strList = { type: "array", items: { type: "string" } };
+  const obj = (props) => ({ type: "object", properties: props, required: Object.keys(props), additionalProperties: false });
+  const INFER_SCHEMA = obj({ meaning: str, short: str, synonyms: strList });
+  const SYN_SCHEMA = obj({ short: str, synonyms: strList });
+  const REVIEW_SCHEMA = obj({ meaningOk: { type: "boolean" }, usageOk: { type: "boolean" }, title: str, explanation: str, corrected: str });
+  const aiErrorText = e => e?.code === "bad_key" ? "Your Claude API key wasn't accepted. Check it in Settings."
+    : e?.code === "rate_limited" ? "Claude is busy right now. Try again in a minute."
+    : "Couldn't reach Claude just now. Try again, or write it yourself.";
+  const inferPrompt = (word, sample) => `You help an English learner preparing for an English exam understand a word in context.
+Word: "${word}"
+Sentence where they found it: "${sample}"
+Return JSON only: {"meaning": string, "short": string, "synonyms": string[]}
+- meaning: what the word means in THIS sentence, plain English, one sentence, max 14 words, starting with "To ..." for verbs.
+- short: lowercase gloss of max 6 words for a word list.
+- synonyms: 2-3 common, simpler words that could replace it in this sentence.`;
+  const synPrompt = (word, sample, meaning) => `An English learner preparing for an English exam corrected the meaning of a word.
+Word: "${word}"
+Sentence: "${sample}"
+Meaning (written by the learner, treat as correct): "${meaning}"
+Return JSON only: {"short": string, "synonyms": string[]}
+- short: lowercase gloss of max 6 words matching this meaning.
+- synonyms: 2-3 common, simpler words with this meaning.`;
+  const reviewPrompt = (w, sentence) => `You review a practice sentence written by an English learner preparing for an English exam. Be brief, kind and precise.
+Target word: "${w.word}"
+Intended meaning: "${w.meaning}"
+Original context sentence (theirs is meant to be new): "${w.sample}"
+Learner's sentence: "${sentence}"
+Return JSON only: {"meaningOk": boolean, "usageOk": boolean, "title": string, "explanation": string, "corrected": string}
+- title: max 7 words, e.g. "Correct meaning. Natural usage." or "Meaning is right. Adjust the usage." or "Check the meaning."
+- explanation: one or two short sentences on meaning and natural usage (grammar, collocation). Quote the key phrase.
+- corrected: a corrected version of their sentence if anything should change, otherwise "".`;
+
+  function localReview(w, sentence) {
+    const stem = w.word.toLowerCase().slice(0, Math.max(3, w.word.length - 2));
+    const has = sentence.toLowerCase().includes(stem);
+    return has
+      ? { meaningOk: true, usageOk: true, offline: true, title: "Sentence saved.", explanation: "Automatic feedback is unavailable right now. Read it aloud and check it against the meaning above.", corrected: "" }
+      : { meaningOk: false, usageOk: false, offline: true, title: `Use “${w.word}” in your sentence.`, explanation: "Your sentence doesn't include the word yet.", corrected: "" };
+  }
+
+  // ---------- views ----------
+  function header(kind, eyebrow, title) {
+    if (kind === "brand" || kind === "brand-plain") return `<header class="header"><div class="brand" aria-hidden="true">R</div><div class="htext"><span class="eyebrow">PERSONAL ENGLISH EXAM VOCABULARY</span><span class="htitle">Recur</span></div>${kind === "brand" ? `<button class="header-link" data-act="settings">Settings</button>` : ""}</header>`;
+    return `<header class="header"><button class="back" data-act="home" aria-label="Back to home">${icon("arrow-left", 21)}</button><div class="htext"><span class="eyebrow">${esc(eyebrow)}</span><span class="htitle">${esc(title)}</span></div></header>`;
+  }
+
+  const greeting = () => S.settings.name ? `<p class="greet">Hi, ${esc(S.settings.name)}</p>` : "";
+  function viewHome() {
+    if (S.loaded && !S.settings.onboarded) { S.ob ||= newOnboarding(); return viewOnboarding(); }
+    const words = all(), t = today();
+    const counts = R.homeCounts(words, S.settings, t);
+    const practicable = queueFor("all").available;
+    const extraAvailable = extraFor("all").available > 0;
+    const stats = `<section class="stats" aria-label="Word counts">
+      <div class="stat"><b>${counts.due}</b><span>Due today</span></div>
+      <div class="stat"><b>${counts.newWaiting}</b><span>New waiting</span></div>
+      <div class="stat"><b>${counts.mastered}</b><span>Mastered</span></div></section>`;
+    if (!words.length) {
+      return header("brand") + `<main class="content"><div class="empty">
+        <div class="symbol">${icon("book-open", 30)}</div>
+        <div class="intro" style="gap:16px">${greeting()}<p class="display" style="font-size:32px">A new word starts with a sentence.</p>
+        <p class="lede">Find an unfamiliar word in a strong writing sample. Save its context, then make it your own.</p></div>
+        <button class="btn btn-primary" data-act="add">Add your first word</button>
+        ${S.loaded ? "" : `<p class="small">Checking your saved words…</p>`}
+      </div></main>`;
+    }
+    const rows = words.map(w => {
+      const isDue = w.due <= t;
+      const label = w.isNew ? (isDue ? "New" : "New · " + shortDate(w.due)) : isDue ? "Today" : (w.mastered ? "Mastered · " : "") + shortDate(w.due);
+      return `<button class="row" data-act="detail" data-id="${w.id}"><span class="row-main"><span class="row-text"><span class="row-word">${esc(w.word)}</span>${w.short ? `<span class="row-gloss">${esc(w.short)}</span>` : ""}</span><span class="row-due ${isDue ? "today" : ""}">${label}</span></span><span class="divider"></span></button>`;
+    }).join("");
+    if (practicable) {
+      const newPart = counts.newToday ? ` · ${counts.newToday} new` : "";
+      return header("brand") + `<main class="content">
+        <div class="intro">${greeting()}<p class="display">Your words, in your own words.</p><p class="lede">Build a vocabulary you can actually use.</p></div>
+        ${stats}
+        <section class="panel"><div style="display:flex;flex-direction:column;gap:5px"><p class="panel-title">${practicable} ${practicable === 1 ? "word" : "words"} to practice today</p><p class="small" style="font-size:13px;line-height:1.45">${counts.due} due${newPart}. Recall the meaning. Try a new sentence.</p></div>
+        <button class="btn btn-primary" data-act="practice">Practice</button></section>
+        <button class="btn btn-secondary" data-act="add">Add new word</button>
+        ${extraAvailable ? `<button class="link-home" data-act="extra">Extra practice with other words</button>` : ""}
+        <section class="bank"><div class="bank-head"><b>Your word bank</b><span>DUE TODAY</span></div>${rows}</section>
+      </main>`;
+    }
+    const nextDate = R.nextPracticeDate(words, t);
+    const nextWord = words.find(w => w.due === nextDate) || words.find(w => w.isNew);
+    return header("brand") + `<main class="content">
+      <div class="intro">${greeting()}<p class="display" style="line-height:1.2">Room for a new word.</p><p class="lede">No words are due today. Keep collecting useful language from your reading.</p></div>
+      ${stats}
+      <section class="panel" style="gap:10px"><div class="label-row">${icon("calendar-days", 18)}<span class="caps">NEXT PRACTICE</span></div>
+        <p class="panel-title" style="font-size:21px">${longDate(nextDate)}</p><p class="small" style="font-size:13px">${nextWord ? esc(nextWord.word) + " is the next word due." : ""}</p></section>
+      <button class="btn btn-primary" data-act="add">Add new word</button>
+      ${extraAvailable ? `<div class="decide"><button class="btn btn-secondary" data-act="extra">Practice anyway</button><p>Today’s practice is done. Extra practice won’t move your review dates.</p></div>` : ""}
+      <section class="bank"><div class="bank-head"><b>Your word bank</b></div>${rows}<p class="small" style="padding-top:10px">Practice dates adjust after each sentence review.</p></section>
+    </main>`;
+  }
+
+  function meaningBlock(st, editable) {
+    // st: {meaning, synonyms, source, editingMeaning, meaningDraft, busyMeaning}
+    if (st.editingMeaning) {
+      return `<div class="field"><div class="flabel"><b>  Edit contextual meaning</b><button class="link" data-act="meaning-done">Done</button></div>
+        <textarea class="box" id="meaning-draft" rows="2" placeholder="Write the meaning in your own words">${esc(st.meaningDraft)}</textarea>
+        <p class="small" style="line-height:1.45">If the inferred meaning is wrong, edit it here. ${ai ? "Recur regenerates simpler synonyms." : "Add synonyms below, separated by commas."}</p>
+        ${ai ? "" : `<input class="syn-input" id="syn-draft" placeholder="reduce, lessen, ease" value="${esc((st.synonyms || []).join(", "))}">`}
+      </div>`;
+    }
+    if (!st.meaning) return "";
+    const label = st.source === "user" ? "MEANING UPDATED BY YOU" : "IN THIS CONTEXT";
+    return `<div class="field" style="gap:8px"><div class="meaning"><div class="meaning-head"><span>${label}</span>${editable ? `<button data-act="meaning-edit">Edit</button>` : ""}</div>
+      <p class="meaning-text">${esc(st.meaning)}</p>
+      ${st.synonyms && st.synonyms.length ? `<div class="chips">${st.synonyms.map(s => `<span class="chip">${esc(s)}</span>`).join("")}</div>` : ""}</div>
+      ${st.busyMeaning ? `<p class="busy">Regenerating synonyms…</p>` : st.regenerated ? `<p class="sys-note">Synonyms regenerated from your edit</p>` : ""}</div>`;
+  }
+
+  // Shown under the sentence field after Retry, so the last correction stays in view.
+  function previousTry(a) {
+    return `<div class="feedback fix"><span class="fb-label">PREVIOUS TRY</span><p class="fb-text">${esc(a.text)}</p>
+      ${a.feedback?.corrected ? `<div class="fb-corrected"><span>CORRECTED SENTENCE</span><p>${esc(a.feedback.corrected)}</p></div>` : ""}</div>`;
+  }
+
+  function feedbackBlock(fb) {
+    if (!fb) return "";
+    const good = fb.meaningOk && fb.usageOk;
+    return `<div class="feedback ${good ? "" : "fix"}"><div class="label-row" style="gap:6px">${icon(good ? "circle-check" : "message-square", 16)}<span class="fb-label">FEEDBACK</span></div>
+      <p class="fb-title">${esc(fb.title)}</p>${fb.explanation ? `<p class="fb-text">${esc(fb.explanation)}</p>` : ""}
+      ${fb.corrected ? `<div class="fb-corrected"><span>CORRECTED SENTENCE</span><p>${esc(fb.corrected)}</p></div>` : ""}</div>`;
+  }
+
+  // Got it / Missed it after revealing. Feedback that found a problem puts Missed it first.
+  function decideBlock(fb, w, retry, extra) {
+    const good = !fb || (fb.meaningOk && fb.usageOk);
+    const after = R.answer(w, true, S.settings, today(), retry);
+    const gotNote = retry ? "Clears it for today. It stays on the 1-day step."
+      : extra ? `Its review date stays the same · ${shortDate(w.due)}.`
+      : after.mastered && !w.mastered ? "Marks it mastered. Reviewed every 60 days."
+      : `Moves up to the ${after.interval}-day step · next on ${shortDate(after.due)}.`;
+    const got = `<button class="btn ${good ? "btn-primary" : "btn-secondary"}" data-act="prac-got">Got it</button>`;
+    const missed = `<button class="btn ${good ? "btn-secondary" : "btn-primary"}" data-act="prac-missed">Missed it</button>`;
+    const gotP = `<p class="${good ? "" : "tight"}">${gotNote}</p>`;
+    const missedP = `<p class="${good ? "tight" : ""}">Back to the 1-day step. It comes back later in this session.</p>`;
+    return `<div class="decide">${good ? got + gotP + missed + missedP : missed + missedP + got + gotP}</div>`;
+  }
+
+  function viewAdd() {
+    const a = S.add;
+    const reviewed = !!a.feedback;
+    const eyebrow = reviewed && !(a.feedback.meaningOk && a.feedback.usageOk) ? "WORD CARD / REVIEW AGAIN" : "WORD CARD / CAPTURE";
+    const intro = reviewed && !(a.feedback.meaningOk && a.feedback.usageOk)
+      ? [`A small fix, then another try.`, `Keep your sentence and learn from the feedback.`]
+      : [`Keep the original context.`, `Type your sample or dictate it. Review the transcript before using it.`];
+    const canInfer = a.word.trim() && a.sample.trim();
+    let meaningArea = "";
+    if (a.meaning || a.editingMeaning) meaningArea = meaningBlock(a, true);
+    else if (a.busyInfer) meaningArea = `<div class="meaning"><p class="busy">Reading your sentence for the meaning…</p></div>`;
+    else meaningArea = `<div class="field">
+      <button class="btn-review" data-act="infer" ${canInfer ? "" : "disabled"}>${ai ? "Find meaning in this context" : "Write the meaning"}</button>
+      ${a.inferError ? `<p class="error">${esc(a.inferError)}</p>` : `<p class="small">${canInfer ? (ai ? "Recur reads your sentence and suggests the contextual meaning." : "Write what the word means in this sentence.") : "Add the word and its sample sentence first."}</p>`}</div>`;
+    const sentenceStep = a.meaning && !a.editingMeaning ? `
+      <div class="field"><div class="flabel"><b><i>03</i>  My own sentence</b></div>
+        <textarea class="box" id="add-sentence" rows="2" placeholder="Use ${esc(a.word.trim() || "the word")} in a sentence of your own…">${esc(a.sentence)}</textarea>
+        <button class="btn-review" data-act="add-review" ${a.busyReview ? "disabled" : ""}>${a.busyReview ? "Reviewing…" : "Review"}</button>
+        ${a.reviewError ? `<p class="error">${esc(a.reviewError)}</p>` : ""}
+      </div>${feedbackBlock(a.feedback)}` : "";
+    return header("back", eyebrow, "Add Word") + `<main class="content">
+      <div class="intro" style="gap:6px"><p class="h2">${intro[0]}</p><p class="sub">${intro[1]}</p></div>
+      <section class="card">
+        <div class="field"><div class="flabel"><b><i>01</i>  Word</b></div>
+          <input class="word-input" id="add-word" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="mitigate" value="${esc(a.word)}"></div>
+        <div class="field"><div class="flabel"><b><i>02</i>  Original sample sentence</b></div>
+          <textarea class="box" id="add-sample" rows="3" placeholder="Paste or type the sentence where you found the word…">${esc(a.sample)}</textarea>
+          <div class="opts"><span>${a.dictating ? "Voice transcript · review it before using" : a.keptSample ? "Same sample as your last word" : "From your writing sample"}</span>
+            <button class="rec" data-act="dictate">${icon("mic", 14)}${a.dictating ? "Dictate again" : "Record"}</button></div>
+          ${a.dictating ? `<p class="hint">Tap the microphone on your keyboard to dictate, then fix any words it misheard.</p>` : ""}
+        </div>
+        ${meaningArea}
+        ${sentenceStep}
+      </section>
+      ${reviewed ? `<div class="decide"><button class="btn btn-primary" data-act="add-save">Save word</button><p>Saved as a new word. Its first practice is tomorrow.</p></div>` : `<p class="small">Write your own sentence, then tap Review for feedback on meaning and natural usage.</p>`}
+    </main>`;
+  }
+
+  function viewSaved() {
+    const w = S.words[S.savedId];
+    if (!w) return viewHome();
+    return header("back", "WORD CARD / CONTINUE", "Word saved") + `<main class="content">
+      <div style="display:flex;flex-direction:column;gap:16px;padding-top:18px">
+        <div class="symbol round sm">${icon("check", 25)}</div>
+        <p class="display" style="line-height:1.2">A word worth keeping.</p>
+        <p class="lede">Your word, context and sentence feedback are saved together.</p></div>
+      <section class="summary"><p class="w">${esc(w.word)}</p><p class="sub">${esc(w.meaning)}</p><div class="divider"></div>
+        <p style="font-size:13px;font-weight:600;color:var(--blue)">Next practice · ${esc(longDate(w.due).replace(/^(Today|Tomorrow) · /, "$1, "))}</p>
+        <p class="small" style="line-height:1.2">New words join practice from this date, up to ${S.settings.newPerDay} a day</p></section>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <button class="btn btn-primary" data-act="add-another">Add another word</button>
+        <p class="small center" style="line-height:1.2">The same sample stays filled in for your next word.</p>
+        <button class="btn btn-secondary" data-act="home">Return Home</button></div>
+    </main>`;
+  }
+
+  function viewPractice() {
+    const p = S.prac, w = S.words[p.queue[p.idx]];
+    if (!w) { S.view = "complete"; return viewComplete(); }
+    const nextW = S.words[p.queue[p.idx + 1]];
+    const retry = p.missed.has(w.id);
+    const defFirst = S.settings.direction === "definition";
+    const hideWord = defFirst && !p.revealed;
+    const segs = p.queue.map((_, i) => `<span class="seg ${i <= p.idx ? "on" : ""}"></span>`).join("");
+    const blanked = s => esc(s).replace(new RegExp("\\b" + escRe(w.word.slice(0, Math.max(3, w.word.length - 2))) + "[\\w-]*", "gi"), "_____");
+    const sampleField = p.editingSample
+      ? `<textarea class="box" id="prac-sample" rows="3">${esc(p.sampleDraft)}</textarea>
+         <div class="opts"><span>Edit the sentence, then save it</span><button class="rec" data-act="prac-sample-save">Save sentence</button></div>`
+      : `<div class="box">${hideWord ? blanked(w.sample) : esc(w.sample)}</div><div class="opts"><span>From your writing sample</span></div>`;
+    const recallQ = defFirst
+      ? `<p class="recall-q">Which word means “${esc(w.meaning)}”?</p>
+         <p class="small" style="font-size:13px">Use the sentence above as a clue. Say the word to yourself, then check.</p>
+         <button class="btn btn-primary" data-act="reveal">Reveal word</button>`
+      : `<p class="recall-q">What does “${esc(w.word)}” mean in this sentence?</p>
+         <p class="small" style="font-size:13px">Say the meaning to yourself. Then check it against the context.</p>
+         <button class="btn btn-primary" data-act="reveal">Reveal meaning</button>`;
+    const recall = !p.revealed ? `
+      <div class="recall"><div class="label-row" style="gap:6px">${icon("brain", 16)}<span class="caps" style="font-size:10px">${retry ? "AGAIN · YOU MISSED THIS EARLIER" : "RECALL BEFORE REVEALING"}</span></div>
+        ${recallQ}</div>
+      <div class="field dim" aria-hidden="true"><div class="flabel"><b><i>03</i>  My new sentence</b></div>
+        <div class="box" style="color:var(--muted)">Reveal the meaning, then write a new sentence…</div>
+        <div class="btn-review quiet" style="border-color:var(--blue);border-width:1px">Review</div></div>` : `
+      ${meaningBlock(p, true)}
+      ${p.editingMeaning ? "" : `<div class="field" style="gap:8px"><p class="small" style="line-height:1.2">Optional: a fresh sentence, different from the ones you saved before.</p>
+        <div class="field"><div class="flabel"><b><i>03</i>  My new sentence</b></div>
+        ${(() => {
+          const canRetry = p.feedback && !(p.feedback.meaningOk && p.feedback.usageOk);
+          return `<div class="box-wrap"><textarea class="box ${canRetry ? "with-action" : ""}" id="prac-sentence" rows="2" placeholder="${p.attempts.length ? "Try a different sentence" : "Write a new sentence"} with ${esc(w.word)}…">${esc(p.sentence)}</textarea>
+          ${canRetry ? `<button class="box-action" data-act="prac-retry" aria-label="Retry with a new sentence" title="Retry with a new sentence">${icon("rotate-ccw", 20)}</button>` : ""}</div>`;
+        })()}
+        <button class="btn-review ${p.feedback ? "quiet" : ""}" data-act="prac-review" ${p.busyReview ? "disabled" : ""}>${p.busyReview ? "Reviewing…" : "Review"}</button>
+        ${!p.feedback && p.attempts.length ? previousTry(p.attempts[p.attempts.length - 1]) : ""}
+        ${p.reviewError ? `<p class="error">${esc(p.reviewError)}</p>` : ""}</div></div>
+      ${feedbackBlock(p.feedback)}`}`;
+    return header("back", p.extra ? "EXTRA PRACTICE" : "RECALL / USE / REMEMBER", "Practice") + `<main class="content">
+      <div class="progress"><div class="progress-labels"><b>Word ${p.idx + 1} of ${p.queue.length}</b><span>${nextW ? (defFirst ? "Next: word " + (p.idx + 2) : "Next: " + esc(nextW.word)) : "Last word"}</span></div><div class="track">${segs}</div></div>
+      <section class="card">
+        <div class="field"><div class="flabel"><b><i>01</i>  Word</b></div>${hideWord ? `<div class="word-input hidden-word" aria-label="Hidden until you reveal it">?</div>` : `<div class="word-input">${esc(w.word)}</div>`}</div>
+        <div class="field"><div class="flabel"><b><i>02</i>  Original sample sentence</b>${p.editingSample || hideWord ? "" : `<button class="link" data-act="prac-sample-edit">Edit</button>`}</div>${sampleField}</div>
+        ${recall}
+      </section>
+      ${p.revealed && !p.editingMeaning && !p.busyReview ? decideBlock(p.feedback, w, retry, p.extra) : ""}
+      <button class="link-home" data-act="home">Return Home</button>
+    </main>`;
+  }
+
+  function viewComplete() {
+    const n = S.prac ? S.prac.done.size : 0;
+    if (S.prac && S.prac.extra) return header("back", "SESSION FINISHED", "Extra practice done") + `<main class="content" style="padding-top:0;padding-bottom:18px">
+      <div style="display:flex;flex-direction:column;gap:24px;padding-top:64px">
+        <div class="symbol round">${icon("circle-check-lg", 30)}</div>
+        <div class="intro" style="gap:14px"><p class="display" style="font-size:32px;line-height:1.2">Extra practice, done.</p>
+          <p class="lede">You practiced ${n} ${n === 1 ? "word" : "words"}. Review dates stay the same, except for words you missed, which return tomorrow.</p></div>
+        <button class="btn btn-primary" data-act="home">Return Home</button>
+        <button class="btn btn-secondary" data-act="extra">Practice more</button>
+      </div></main>`;
+    const carried = queueFor("all").available;
+    const words = all(), nextDate = R.nextPracticeDate(words, today());
+    return header("back", "SESSION FINISHED", "Practice complete") + `<main class="content" style="padding-top:0;padding-bottom:18px">
+      <div style="display:flex;flex-direction:column;gap:24px;padding-top:64px">
+        <div class="symbol round">${icon("circle-check-lg", 30)}</div>
+        <div class="intro" style="gap:14px"><p class="display" style="font-size:32px;line-height:1.2">Your words are taking shape.</p>
+          <p class="lede">${carried
+            ? `You practiced ${n} ${n === 1 ? "word" : "words"}. ${carried} more ${carried === 1 ? "is" : "are"} due and will be first in your next session.`
+            : `You’ve practiced ${n === 1 ? "the 1 word" : "all " + n + " words"} due today.`} Your new sentences and feedback are saved.</p></div>
+        ${carried ? `<button class="btn btn-primary" data-act="practice">Practice more</button>` : nextDate ? `<div class="next-box"><span class="caps">NEXT PRACTICE</span><p class="next-date">${longDate(nextDate)}</p><p class="small" style="font-size:13px;line-height:1.45">Words you missed return tomorrow.</p></div>` : ""}
+        <button class="btn btn-primary" data-act="home">Return Home</button>
+        <button class="btn btn-secondary" data-act="add">Add new word</button>
+      </div></main>`;
+  }
+
+  function viewDetail() {
+    const w = S.words[S.detailId];
+    if (!w) { S.view = "home"; return viewHome(); }
+    const hist = (w.sentences || []).slice().reverse();
+    return header("back", "WORD BANK", w.word) + `<main class="content">
+      <section class="card">
+        <div class="field"><div class="flabel"><b><i>01</i>  Word</b></div><div class="word-input">${esc(w.word)}</div></div>
+        <div class="field"><div class="flabel"><b><i>02</i>  Original sample sentence</b></div><div class="box">${esc(w.sample)}</div></div>
+        ${meaningBlock({ meaning: w.meaning, synonyms: w.synonyms, source: w.meaningSource }, false)}
+        <div class="field"><div class="flabel"><b><i>03</i>  My sentences</b><span class="small">${hist.length}</span></div>
+          ${hist.length ? `<div class="history">${hist.map(s => `<div class="hist-item"><p>${esc(s.text)}</p><span>${shortDate(s.date)} · ${esc(s.feedback?.title || "")}</span></div>`).join("")}</div>` : `<p class="small">No sentences yet.</p>`}</div>
+      </section>
+      <div class="next-box"><span class="caps">NEXT PRACTICE</span><p class="next-date">${longDate(w.due)}</p>
+        <p class="small" style="font-size:13px;line-height:1.45">${w.mastered ? "Mastered · reviewed every 60 days" : w.isNew ? "New word · not practiced yet" : `Step ${(w.step ?? 0) + 1} of ${R.STEPS.length} · ${R.STEPS[w.step ?? 0]}-day interval`}</p></div>
+      ${S.confirmDelete
+        ? `<div class="decide"><p>Delete “${esc(w.word)}” and all its sentences?</p><div class="confirm"><button class="btn btn-secondary" data-act="delete-cancel">Keep</button><button class="btn btn-secondary danger" data-act="delete-yes">Delete</button></div></div>`
+        : `<button class="link-home" style="color:var(--muted)" data-act="delete-ask">Delete word</button>`}
+    </main>`;
+  }
+
+  function viewSetup() {
+    const t = today(), counts = R.homeCounts(Object.values(S.words), S.settings, t);
+    const q = S.extra ? extraFor(S.sessionSize) : queueFor(S.sessionSize);
+    const opts = R.SESSION_SIZES.map(n => `<button class="size-opt ${S.sessionSize === n ? "on" : ""}" data-act="size" data-size="${n}" aria-pressed="${S.sessionSize === n}">${n === "all" ? "All" : n}</button>`).join("");
+    const intro = S.extra
+      ? `<p class="h2">Extra practice</p><p class="sub">Practice words that aren’t due yet, soonest review first. Got it keeps each review date. Missed it brings the word back tomorrow.</p>`
+      : `<p class="h2">How many words today?</p><p class="sub">${counts.due} due${counts.newToday ? ` and ${counts.newToday} new` : ""}. Most overdue words come first.</p>`;
+    const sizeNote = q.carried
+      ? `${q.queue.length} words in this session. ${q.carried} more ${S.extra ? "available for extra practice" : "stay due for your next session"}.`
+      : `All ${q.queue.length} available ${q.queue.length === 1 ? "word" : "words"} fit in this session.`;
+    return header("back", S.extra ? "EXTRA PRACTICE" : "RECALL / USE / REMEMBER", "Practice") + `<main class="content">
+      <div class="intro" style="gap:6px">${intro}</div>
+      <div class="field"><div class="flabel"><b>  Session size</b></div><div class="size-grid">${opts}</div>
+        <p class="small">${sizeNote}</p></div>
+      <button class="btn btn-primary" data-act="start" ${q.queue.length ? "" : "disabled"}>Start practice</button>
+      <button class="link-home" data-act="home">Return Home</button>
+    </main>`;
+  }
+
+  function newOnboarding() {
+    return { step: 0, name: S.settings.name || "", examDate: S.settings.examDate || "", newPerDay: String(S.settings.newPerDay ?? 5),
+      key: "", keyState: lsGetKey() ? "saved" : "", keyError: "", error: "" };
+  }
+  // Steps: 0 name, 1 practice plan, 2 Claude key (standalone only), 3 how it works.
+  const obSteps = () => HOSTED ? [0, 1, 3] : [0, 1, 2, 3];
+  function viewOnboarding() {
+    const o = S.ob, steps = obSteps(), pos = steps.indexOf(o.step);
+    const segs = steps.map((_, i) => `<span class="seg ${i <= pos ? "on" : ""}"></span>`).join("");
+    const top = `<div class="progress"><div class="progress-labels"><b>Step ${pos + 1} of ${steps.length}</b>${pos > 0 ? `<button class="link" data-act="ob-back">Back</button>` : "<span></span>"}</div><div class="track">${segs}</div></div>`;
+    const installTip = !HOSTED && navigator.standalone === false
+      ? `<p class="hint">Tip: add Recur to your Home Screen first (Share, then Add to Home Screen) and set it up from there. The Home Screen app keeps its own saved words.</p>` : "";
+    let body = "";
+    if (o.step === 0) body = `
+      <div class="intro" style="gap:14px"><div class="brand ob-brand" aria-hidden="true">R</div>
+        <p class="display">Welcome to Recur.</p>
+        <p class="lede">Collect English words from what you read, in the sentences you found them in. Recur helps you understand them, use them and remember them for your English exam.</p></div>
+      ${installTip}
+      <div class="field"><div class="flabel"><b>  What should we call you?</b></div>
+        <input class="box" id="ob-name" maxlength="40" autocomplete="given-name" placeholder="Your first name or a nickname" value="${esc(o.name)}">
+        <p class="small">This is your name in the app. Only you see it.</p></div>
+      ${o.error ? `<p class="error">${esc(o.error)}</p>` : ""}
+      <button class="btn btn-primary" data-act="ob-next">Continue</button>`;
+    else if (o.step === 1) body = `
+      <div class="intro" style="gap:6px"><p class="h2">Your practice plan</p><p class="sub">You can change both later in Settings.</p></div>
+      <section class="card">
+        <div class="field"><div class="flabel"><b>  Exam date</b>${o.examDate ? `<button class="link" data-act="ob-exam-clear">Clear</button>` : ""}</div>
+          <input class="box" id="ob-exam" type="date" min="${today()}" value="${esc(o.examDate)}">
+          <p class="small">Optional. Recur makes sure every word is reviewed at least once in the 7 days before your exam.</p></div>
+        <div class="field"><div class="flabel"><b>  New words per day</b></div>
+          <input class="box" id="ob-new" type="number" inputmode="numeric" min="0" max="50" value="${esc(o.newPerDay)}">
+          <p class="small">How many newly added words join your practice each day. 5 is a good start.</p></div>
+      </section>
+      ${o.error ? `<p class="error">${esc(o.error)}</p>` : ""}
+      <button class="btn btn-primary" data-act="ob-next">Continue</button>`;
+    else if (o.step === 2) body = `
+      <div class="intro" style="gap:6px"><p class="h2">Claude feedback</p>
+        <p class="sub">Optional. With your own Anthropic API key, Claude suggests what each word means in its sentence and reviews the sentences you write. Without one, you write meanings yourself.</p></div>
+      <section class="card">
+        ${o.keyState === "saved" ? `<p class="ok-note">A key is saved on this device.</p>` : ""}
+        <div class="field"><div class="flabel"><b>  Anthropic API key</b><a class="link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get a key</a></div>
+          <input class="box" id="ob-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" value="${esc(o.key)}">
+          <p class="small">Your key stays in this browser and is only sent to Anthropic. You pay Anthropic for what you use, a fraction of a cent per word. Setting a monthly spend limit in the Anthropic Console is a good idea.</p></div>
+        ${o.keyError ? `<p class="error">${esc(o.keyError)}</p>` : ""}
+      </section>
+      <button class="btn btn-primary" data-act="ob-key-save" ${o.keyState === "checking" ? "disabled" : ""}>${o.keyState === "checking" ? "Checking key…" : o.keyState === "saved" && !o.key ? "Continue" : "Check and save key"}</button>
+      <button class="link-home" data-act="ob-skip">${o.keyState === "saved" ? "Remove saved key and skip" : "Skip for now"}</button>`;
+    else body = `
+      <div class="intro" style="gap:6px"><p class="h2">How Recur works</p><p class="sub">Three steps you'll repeat every day.</p></div>
+      <div class="ob-steps">
+        <div class="ob-step"><i>1</i><div><b>Add a word with its sentence</b><span>When you meet an unfamiliar word, save it with the sentence you found it in. Then write a sentence of your own.</span></div></div>
+        <div class="ob-step"><i>2</i><div><b>Practice what's due</b><span>Recall the meaning before you reveal it. Try a new sentence if you like.</span></div></div>
+        <div class="ob-step"><i>3</i><div><b>Got it or Missed it</b><span>Got it brings a word back later each time: 1, 3, 7, 14, 30, then 60 days. Missed it brings it back tomorrow.</span></div></div>
+      </div>
+      <button class="btn btn-primary" data-act="ob-finish">${Object.keys(S.words).length ? "Go to my words" : "Add my first word"}</button>`;
+    return header("brand-plain") + `<main class="content">${top}${body}</main>`;
+  }
+
+  function viewSettings() {
+    const d = S.settingsDraft;
+    const dirOpt = (val, title, text) => `<button class="choice ${d.direction === val ? "on" : ""}" data-act="direction" data-dir="${val}" aria-pressed="${d.direction === val}"><b>${title}</b><span>${text}</span></button>`;
+    const keyField = HOSTED ? "" : `
+        <div class="field"><div class="flabel"><b>  Claude API key</b>${lsGetKey() ? `<button class="link" data-act="key-remove">Remove</button>` : `<a class="link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get a key</a>`}</div>
+          <input class="box" id="set-key" type="password" autocomplete="off" spellcheck="false" placeholder="${lsGetKey() ? "Saved · paste a new key to replace it" : "sk-ant-…"}" value="${esc(d.key || "")}">
+          <p class="small">${lsGetKey() ? "Claude feedback is on. Your key stays in this browser." : "Optional. Turns on Claude's meaning suggestions and sentence feedback."}</p></div>`;
+    return header("back", "PRACTICE SETTINGS", "Settings") + `<main class="content">
+      <section class="card">
+        <div class="field"><div class="flabel"><b>  Your name</b></div>
+          <input class="box" id="set-name" maxlength="40" value="${esc(d.name || "")}"></div>
+        <div class="field"><div class="flabel"><b>  New words per day</b></div>
+          <input class="box" id="set-new" type="number" inputmode="numeric" min="0" max="50" value="${esc(d.newPerDay)}">
+          <p class="small">How many never-practiced words join your sessions each day.</p></div>
+        <div class="field"><div class="flabel"><b>  Exam date</b>${d.examDate ? `<button class="link" data-act="exam-clear">Clear</button>` : ""}</div>
+          <input class="box" id="set-exam" type="date" value="${esc(d.examDate)}" min="${today()}">
+          <p class="small">Optional. Intervals shorten so every word is reviewed at least once in the 7 days before your exam.</p></div>
+        <div class="field"><div class="flabel"><b>  Card direction</b></div>
+          ${dirOpt("word", "Word → definition", "See the word in its sentence and recall what it means.")}
+          ${dirOpt("definition", "Definition → word", "See the meaning and the sentence with the word blanked out, and recall the word.")}</div>
+        ${keyField}
+      </section>
+      ${S.settingsError ? `<p class="error">${esc(S.settingsError)}</p>` : ""}
+      <button class="btn btn-primary" data-act="settings-save" ${S.settingsBusy ? "disabled" : ""}>${S.settingsBusy ? "Checking key…" : "Save settings"}</button>
+      <button class="link-home" data-act="home">Cancel</button>
+    </main>`;
+  }
+
+  // ---------- render ----------
+  const app = document.getElementById("app");
+  function render(scrollTop) {
+    const v = { home: viewHome, add: viewAdd, saved: viewSaved, practice: viewPractice, complete: viewComplete, detail: viewDetail, setup: viewSetup, settings: viewSettings }[S.view] || viewHome;
+    const y = window.scrollY;
+    app.innerHTML = v();
+    window.scrollTo(0, scrollTop ? 0 : y);
+  }
+  const go = (view) => { S.view = view; S.confirmDelete = false; render(true); };
+
+  // ---------- inputs ----------
+  const onInput = e => {
+    const t = e.target, v = t.value;
+    if (t.id === "add-word") S.add.word = v;
+    else if (t.id === "add-sample") { S.add.sample = v; S.add.keptSample = false; }
+    else if (t.id === "add-sentence") S.add.sentence = v;
+    else if (t.id === "meaning-draft") (S.view === "add" ? S.add : S.prac).meaningDraft = v;
+    else if (t.id === "syn-draft") (S.view === "add" ? S.add : S.prac).synDraft = v;
+    else if (t.id === "prac-sentence") S.prac.sentence = v;
+    else if (t.id === "prac-sample") S.prac.sampleDraft = v;
+    else if (t.id === "set-new") S.settingsDraft.newPerDay = v;
+    else if (t.id === "set-name") S.settingsDraft.name = v;
+    else if (t.id === "set-key") S.settingsDraft.key = v;
+    else if (t.id === "ob-name") S.ob.name = v;
+    else if (t.id === "ob-exam") S.ob.examDate = v;
+    else if (t.id === "ob-new") S.ob.newPerDay = v;
+    else if (t.id === "ob-key") S.ob.key = v;
+    else if (t.id === "set-exam") S.settingsDraft.examDate = v;
+    else return;
+    if (t.id === "add-word" || t.id === "add-sample") {
+      const btn = app.querySelector('[data-act="infer"]');
+      if (btn) btn.disabled = !(S.add.word.trim() && S.add.sample.trim());
+    }
+    if (t.tagName === "TEXTAREA" && !CSS.supports("field-sizing", "content")) { t.style.height = "auto"; t.style.height = t.scrollHeight + 2 + "px"; }
+  };
+  app.addEventListener("input", onInput);
+  app.addEventListener("change", onInput); // iOS date pickers report through change
+
+  function newAdd(sample) {
+    return { word: "", sample: sample || "", keptSample: !!sample, meaning: "", short: "", synonyms: [], source: "system", sentence: "", feedback: null };
+  }
+
+  // ---------- actions ----------
+  async function meaningDone(st, word, sample) {
+    const m = (st.meaningDraft || "").trim();
+    st.editingMeaning = false;
+    if (!m) { render(); return; }
+    st.meaning = m; st.source = "user"; st.regenerated = false;
+    if (!ai) {
+      if (st.synDraft != null) st.synonyms = st.synDraft.split(",").map(s => s.trim()).filter(Boolean).slice(0, 3);
+      st.short = m.toLowerCase().replace(/^to /, "").replace(/\.$/, "").split(" ").slice(0, 6).join(" ");
+      render(); return;
+    }
+    st.busyMeaning = true; render();
+    try {
+      const r = await askJSON(synPrompt(word, sample, m), SYN_SCHEMA);
+      st.synonyms = (r.synonyms || []).slice(0, 3); st.short = r.short || st.short; st.regenerated = true;
+    } catch (e) { console.warn(e); }
+    st.busyMeaning = false; render();
+  }
+
+  async function review(st, w, sentence) {
+    sentence = sentence.trim();
+    if (!sentence) { st.reviewError = "Write a sentence first."; render(); return; }
+    st.reviewError = ""; st.busyReview = true; render();
+    try { st.feedback = ai ? await askJSON(reviewPrompt(w, sentence), REVIEW_SCHEMA) : localReview(w, sentence); }
+    catch (e) {
+      st.feedback = localReview(w, sentence);
+      if (e && e.code === "rate_limited") st.feedback.explanation = "Feedback is busy right now. Try Review again in a minute, or continue.";
+      else if (e && e.code === "bad_key") st.feedback.explanation = aiErrorText(e);
+    }
+    st.reviewedText = sentence; st.busyReview = false; render();
+  }
+
+  async function addSave() {
+    const a = S.add;
+    const w = R.newWord({
+      id: uid(), word: a.word.trim(), sample: a.sample.trim(), meaning: a.meaning, meaningSource: a.source,
+      short: a.short || "", synonyms: a.synonyms || [], created: Date.now(),
+      sentences: a.reviewedText ? [{ text: a.reviewedText, feedback: a.feedback, date: today() }] : [],
+    }, S.settings, today());
+    S.lastSample = w.sample; S.savedId = w.id;
+    const saving = persist(w); // adds the word to S.words right away, so the Saved screen can show it
+    go("saved");
+    await saving;
+  }
+
+  // Got it / Missed it. A missed word goes to the end of today's queue until it's answered correctly once.
+  function pracAnswer(correct) {
+    const p = S.prac, id = p.queue[p.idx];
+    const w = { ...S.words[id] };
+    w.sentences = [...(w.sentences || [])];
+    w.sentences.push(...p.attempts);
+    if (p.reviewedText) w.sentences.push({ text: p.reviewedText, feedback: p.feedback, date: today() });
+    if (p.source === "user" && p.meaning) { w.meaning = p.meaning; w.meaningSource = "user"; w.synonyms = p.synonyms; if (p.short) w.short = p.short; }
+    const retry = p.missed.has(id);
+    persist(p.extra ? R.extraAnswer(w, correct, S.settings, today()) : R.answer(w, correct, S.settings, today(), retry));
+    p.done.add(id);
+    if (correct) p.missed.delete(id);
+    else { p.missed.add(id); p.queue = p.queue.concat(id); }
+    if (p.idx + 1 >= p.queue.length) { go("complete"); return; }
+    S.prac = { ...p, idx: p.idx + 1, revealed: false, sentence: "", feedback: null, reviewedText: "", attempts: [], editingMeaning: false, editingSample: false, regenerated: false, reviewError: "" };
+    render(true);
+  }
+
+  async function settingsSave() {
+    const d = S.settingsDraft;
+    const n = Math.round(Number(d.newPerDay));
+    if (!Number.isFinite(n) || n < 0 || n > 50) { S.settingsError = "New words per day must be a number from 0 to 50."; render(); return; }
+    const name = (d.name || "").trim();
+    if (!name) { S.settingsError = "Add a name so Recur knows what to call you."; render(); return; }
+    const newKey = (d.key || "").trim();
+    if (newKey) {
+      S.settingsBusy = true; S.settingsError = ""; render();
+      try { await checkKey(newKey); lsSetKey(newKey); ai = apiKeyAI(newKey); }
+      catch (e) { S.settingsBusy = false; S.settingsError = e.code === "bad_key" ? "That API key wasn't accepted. Check that you copied all of it." : "Couldn't check the key just now. Try again in a moment."; render(); return; }
+      S.settingsBusy = false;
+    }
+    const s = { ...S.settings, name, newPerDay: n, examDate: d.examDate || "", direction: d.direction };
+    const examChanged = s.examDate && s.examDate !== S.settings.examDate;
+    await saveSettings(s);
+    // Pull words scheduled past the exam back so they're reviewed in the final week.
+    if (examChanged) for (const w of Object.values(S.words)) {
+      const due = R.capDue(w.due, today(), s.examDate);
+      if (due !== w.due) persist({ ...w, due });
+    }
+    go("home");
+  }
+
+  app.addEventListener("click", async e => {
+    const b = e.target.closest("[data-act]"); if (!b || b.disabled) return;
+    const act = b.dataset.act;
+    switch (act) {
+      case "home": S.prac = S.view === "complete" ? S.prac : null; go("home"); break;
+      case "add": S.add = newAdd(); go("add"); setTimeout(() => app.querySelector("#add-word")?.focus(), 50); break;
+      case "add-another": S.add = newAdd(S.lastSample); go("add"); setTimeout(() => app.querySelector("#add-word")?.focus(), 50); break;
+      case "detail": S.detailId = b.dataset.id; go("detail"); break;
+      case "delete-ask": S.confirmDelete = true; render(); break;
+      case "delete-cancel": S.confirmDelete = false; render(); break;
+      case "delete-yes": await remove(S.detailId); go("home"); break;
+      case "dictate": S.add.dictating = true; render(); { const t = app.querySelector("#add-sample"); t.focus(); t.setSelectionRange(t.value.length, t.value.length); } break;
+      case "infer": {
+        const a = S.add;
+        if (!ai) { a.editingMeaning = true; a.meaningDraft = ""; render(); app.querySelector("#meaning-draft")?.focus(); break; }
+        a.busyInfer = true; a.inferError = ""; render();
+        try {
+          const r = await askJSON(inferPrompt(a.word.trim(), a.sample.trim()), INFER_SCHEMA);
+          a.meaning = r.meaning || ""; a.short = r.short || ""; a.synonyms = (r.synonyms || []).slice(0, 3); a.source = "system";
+        } catch (err) {
+          if (err && err.code === "not_granted") { ai = null; a.editingMeaning = true; a.meaningDraft = ""; }
+          else a.inferError = aiErrorText(err);
+        }
+        a.busyInfer = false; render(); break;
+      }
+      case "meaning-edit": { const st = S.view === "add" ? S.add : S.prac; st.editingMeaning = true; st.meaningDraft = st.meaning; st.synDraft = null; render(); app.querySelector("#meaning-draft")?.focus(); break; }
+      case "meaning-done": {
+        if (S.view === "add") await meaningDone(S.add, S.add.word.trim(), S.add.sample.trim());
+        else { const w = S.words[S.prac.queue[S.prac.idx]]; await meaningDone(S.prac, w.word, w.sample); }
+        break;
+      }
+      case "add-review": { const a = S.add; await review(a, { word: a.word.trim(), meaning: a.meaning, sample: a.sample.trim() }, a.sentence); break; }
+      case "add-save": addSave(); break;
+      case "practice": S.extra = false; go("setup"); break;
+      case "extra": S.extra = true; go("setup"); break;
+      case "size": S.sessionSize = b.dataset.size === "all" ? "all" : Number(b.dataset.size); render(); break;
+      case "start": {
+        const { queue } = S.extra ? extraFor(S.sessionSize) : queueFor(S.sessionSize);
+        if (!queue.length) break;
+        S.prac = { queue, idx: 0, revealed: false, sentence: "", feedback: null, attempts: [], missed: new Set(), done: new Set(), extra: S.extra };
+        go("practice"); break;
+      }
+      case "settings": S.settingsDraft = { ...S.settings, key: "" }; S.settingsError = ""; S.settingsBusy = false; go("settings"); break;
+      case "direction": S.settingsDraft.direction = b.dataset.dir; render(); break;
+      case "exam-clear": S.settingsDraft.examDate = ""; render(); break;
+      case "settings-save": settingsSave(); break;
+      case "key-remove": lsSetKey(""); ai = null; render(); break;
+      case "ob-back": { const st = obSteps(); S.ob.step = st[Math.max(0, st.indexOf(S.ob.step) - 1)]; S.ob.error = ""; render(true); break; }
+      case "ob-exam-clear": S.ob.examDate = ""; render(); break;
+      case "ob-next": {
+        const o = S.ob;
+        if (o.step === 0 && !o.name.trim()) { o.error = "Add a name to continue."; render(); break; }
+        if (o.step === 1) {
+          const n = Math.round(Number(o.newPerDay));
+          if (!Number.isFinite(n) || n < 0 || n > 50) { o.error = "New words per day must be a number from 0 to 50."; render(); break; }
+        }
+        const st = obSteps(); o.step = st[st.indexOf(o.step) + 1]; o.error = ""; render(true); break;
+      }
+      case "ob-key-save": {
+        const o = S.ob, key = o.key.trim();
+        if (!key) { if (o.keyState === "saved") { o.step = 3; render(true); } else { o.keyError = "Paste your key, or tap Skip for now."; render(); } break; }
+        o.keyState = "checking"; o.keyError = ""; render();
+        try { await checkKey(key); lsSetKey(key); ai = apiKeyAI(key); o.keyState = "saved"; o.key = ""; o.step = 3; }
+        catch (e) { o.keyState = lsGetKey() ? "saved" : ""; o.keyError = e.code === "bad_key" ? "That key wasn't accepted. Check that you copied all of it." : "Couldn't check the key just now. Check your connection and try again."; }
+        render(true); break;
+      }
+      case "ob-skip": if (S.ob.keyState === "saved") { lsSetKey(""); ai = null; S.ob.keyState = ""; } S.ob.step = 3; render(true); break;
+      case "ob-finish": {
+        const o = S.ob, n = Math.round(Number(o.newPerDay));
+        const s = { ...S.settings, name: o.name.trim(), examDate: o.examDate || "", newPerDay: Number.isFinite(n) ? n : 5, onboarded: true };
+        const examChanged = s.examDate && s.examDate !== S.settings.examDate;
+        await saveSettings(s);
+        if (examChanged) for (const w of Object.values(S.words)) { const due = R.capDue(w.due, today(), s.examDate); if (due !== w.due) persist({ ...w, due }); }
+        S.ob = null;
+        if (Object.keys(S.words).length) go("home");
+        else { S.add = newAdd(); go("add"); }
+        break;
+      }
+      case "reveal": { const p = S.prac, w = S.words[p.queue[p.idx]]; Object.assign(p, { revealed: true, meaning: w.meaning, synonyms: w.synonyms, short: w.short, source: w.meaningSource || "system" }); render(); break; }
+      case "prac-sample-edit": { const p = S.prac; p.editingSample = true; p.sampleDraft = S.words[p.queue[p.idx]].sample; render(); break; }
+      case "prac-sample-save": {
+        const p = S.prac, w = { ...S.words[p.queue[p.idx]] };
+        if (p.sampleDraft.trim()) { w.sample = p.sampleDraft.trim(); persist(w); }
+        p.editingSample = false; render(); break;
+      }
+      case "prac-retry": {
+        // Keep the incorrect try (it's saved with the word), then clear the field for a new sentence.
+        const p = S.prac;
+        if (p.reviewedText) p.attempts.push({ text: p.reviewedText, feedback: p.feedback, date: today() });
+        Object.assign(p, { sentence: "", feedback: null, reviewedText: "", reviewError: "" });
+        render(); app.querySelector("#prac-sentence")?.focus(); break;
+      }
+      case "prac-review": { const p = S.prac, w = S.words[p.queue[p.idx]]; await review(p, { ...w, meaning: p.meaning || w.meaning }, p.sentence); break; }
+      case "prac-got": pracAnswer(true); break;
+      case "prac-missed": pracAnswer(false); break;
+    }
+  });
+
+  render();
+
+  // ---------- capabilities ----------
+  (async () => {
+    if (!HOSTED) { const k = lsGetKey(); if (k) ai = apiKeyAI(k); S.loaded = true; migrateAll(); render(); return; }
+    claude.use("sample").then(s => { ai = s; if (S.view === "add") render(); });
+    try {
+      const [d, u] = await Promise.all([claude.use("db"), claude.use("user")]);
+      const id = u ? await u.id() : null;
+      if (d && id) {
+        db = d; wordsCol = db.collection("data/users/" + id);
+        wordsCol.onSnapshot(snap => {
+          const remote = {};
+          let remoteSettings = null;
+          snap.docs.forEach(doc => {
+            const v = doc.data();
+            if (doc.id === SETTINGS_ID) remoteSettings = v;
+            else if (v && v.word) remote[doc.id] = v;
+          });
+          if (!S.loaded && snap.empty && Object.keys(S.words).length) {
+            // first sync on this account: upload words saved in this browser
+            Object.values(S.words).forEach(w => wordsCol.doc(w.id).set(w).catch(() => {}));
+          } else {
+            S.words = remote; lsSet(remote);
+          }
+          if (remoteSettings) { S.settings = { ...R.DEFAULT_SETTINGS, ...remoteSettings }; lsSetSettings(S.settings); }
+          const first = !S.loaded;
+          S.loaded = true;
+          if (first) migrateAll();
+          if (S.view === "home" || S.view === "detail") render();
+        }, () => { S.loaded = true; migrateAll(); render(); });
+        return;
+      }
+    } catch (e) { console.warn(e); }
+    S.loaded = true; migrateAll(); if (S.view === "home") render();
+  })();
+})();
+</script>
+
+</body>
+</html>
